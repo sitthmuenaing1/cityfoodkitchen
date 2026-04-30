@@ -6,6 +6,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\OrderController;
 
 // Home
 Route::view('/', 'home')->name('home');
@@ -27,6 +28,7 @@ Route::post('/register', [RegisterController::class,'register'])->name('register
 // Cart routes (auth required)
 Route::middleware('auth')->group(function () {
     Route::get('/cart', [CartController::class,'index'])->name('cart');
+    Route::post('/cart/add', [CartController::class,'addFromRequest']);
     Route::get('/add-to-cart/{mid}', [CartController::class,'addToCart'])->name('add.cart');
     Route::get('/qty-plus/{key}', [CartController::class,'qtyPlus'])->name('qty.plus');
     Route::get('/qty-minus/{key}', [CartController::class,'qtyMinus'])->name('qty.minus');
@@ -44,3 +46,5 @@ Route::post('/logout', function () {
 })->name('logout');
 
 
+Route::post('/order', [OrderController::class, 'store'])->middleware('auth');
+Route::get('/order', [OrderController::class, 'index'])->middleware('auth');

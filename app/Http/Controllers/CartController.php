@@ -7,6 +7,25 @@ use App\Models\Menu;
 
 class CartController extends Controller
 {
+    private function addItemToCart(int $mid, int $quantity = 1): void
+    {
+        $cart = session()->get('cart', []);
+        $qty = session()->get('qty', []);
+        $mid = (int) $mid;
+        $quantity = max(1, $quantity);
+
+        if (in_array($mid, $cart)) {
+            $key = array_search($mid, $cart);
+            $qty[$key] = ($qty[$key] ?? 1) + $quantity;
+        } else {
+            $cart[] = $mid;
+            $qty[] = $quantity;
+        }
+
+        session()->put('cart', $cart);
+        session()->put('qty', $qty);
+    }
+
     // Show cart page
     public function index()
     {
@@ -28,20 +47,20 @@ class CartController extends Controller
     // Add item to cart
     public function addToCart($mid)
     {
-        $cart = session()->get('cart', []);
-        $qty = session()->get('qty', []);
-        $mid = (int)$mid;
+        $this->addItemToCart((int) $mid, 1);
 
-        if (in_array($mid, $cart)) {
-            $key = array_search($mid, $cart);
-            $qty[$key] = ($qty[$key] ?? 1) + 1;
-        } else {
-            $cart[] = $mid;
-            $qty[] = 1;
-        }
+        return back()->with('success', 'Item added to cart');
+    }
 
-        session()->put('cart', $cart);
-        session()->put('qty', $qty);
+    // Add item to cart from form post
+    public function addFromRequest(Request $request)
+    {
+        $data = $request->validate([
+            'menu_id' => 'required|integer',
+            'qty' => 'nullable|integer|min:1',
+        ]);
+
+        $this->addItemToCart((int) $data['menu_id'], (int) ($data['qty'] ?? 1));
 
         return back()->with('success', 'Item added to cart');
     }
