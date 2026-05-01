@@ -33,4 +33,38 @@ class CartTest extends TestCase
 
         $response->assertStatus(200);
     }
+
+    public function test_update_quantity_of_items_in_cart()
+    {
+        $user = User::factory()->create();
+        $menu = Menu::factory()->create();
+
+        $this->actingAs($user)->withSession([
+            'cart' => [$menu->mid],
+            'qty' => [1],
+        ])->get('/qty-plus/0')->assertRedirect();
+
+        $this->assertSame([2], session('qty'));
+
+        $this->actingAs($user)->withSession([
+            'cart' => [$menu->mid],
+            'qty' => [2],
+        ])->get('/qty-minus/0')->assertRedirect();
+
+        $this->assertSame([1], session('qty'));
+    }
+
+    public function test_clear_item_from_cart()
+    {
+        $user = User::factory()->create();
+        $menu = Menu::factory()->create();
+
+        $this->actingAs($user)->withSession([
+            'cart' => [$menu->mid],
+            'qty' => [2],
+        ])->get('/cart-remove/0')->assertRedirect();
+
+        $this->assertSame([], array_values(session('cart', [])));
+        $this->assertSame([], array_values(session('qty', [])));
+    }
 }
