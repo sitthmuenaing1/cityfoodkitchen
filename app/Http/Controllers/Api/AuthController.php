@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -21,12 +23,13 @@ class AuthController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => $data['password'],
+            'password' => Hash::make($data['password']),
         ]);
 
         $token = $user->createToken('api')->plainTextToken;
 
         return response()->json([
+            'success' => true,
             'token' => $token,
             'user' => $user->fresh(),
         ], 201);
@@ -39,14 +42,22 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $user = User::where('email', $data['email'])->first();
-
-        if (! $user || ! Hash::check($data['password'], $user->password)) {
-            return response()->json(['message' => 'Invalid email or password'], 422);
+        if (! Auth::attempt(['email' => $data['email'], 'password' => $data['password']])) {
+            throw ValidationException::withMessages([
+                'email' => ['The provided credentials are incorrect.'],
+            ]);
         }
 
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+
+        $user->tokens()->delete();
+
+        $token = $user->createToken('api')->plainTextToken;
+
         return response()->json([
-            'token' => $user->createToken('api')->plainTextToken,
+            'success' => true,
+            'token' => $token,
             'user' => $user->fresh(),
         ]);
     }
