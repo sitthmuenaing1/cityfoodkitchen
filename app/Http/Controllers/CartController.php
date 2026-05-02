@@ -65,6 +65,34 @@ class CartController extends Controller
         return back()->with('success', 'Item added to cart');
     }
 
+    // Add item to cart (POST)
+    public function add(Request $request)
+    {
+        $data = $request->validate([
+            'menu_id' => ['required', 'integer'],
+            'qty' => ['nullable', 'integer', 'min:1'],
+        ]);
+
+        $mid = (int) $data['menu_id'];
+        $addQty = (int) ($data['qty'] ?? 1);
+
+        $cart = session()->get('cart', []);
+        $qty = session()->get('qty', []);
+
+        if (in_array($mid, $cart, true)) {
+            $key = array_search($mid, $cart, true);
+            $qty[$key] = ((int) ($qty[$key] ?? 1)) + $addQty;
+        } else {
+            $cart[] = $mid;
+            $qty[] = $addQty;
+        }
+
+        session()->put('cart', $cart);
+        session()->put('qty', $qty);
+
+        return back()->with('success', 'Item added to cart');
+    }
+
     // Increase quantity
     public function qtyPlus($key)
     {

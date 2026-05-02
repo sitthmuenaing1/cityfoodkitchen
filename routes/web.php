@@ -30,10 +30,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/cart', [CartController::class,'index'])->name('cart');
     Route::post('/cart/add', [CartController::class,'addFromRequest']);
     Route::get('/add-to-cart/{mid}', [CartController::class,'addToCart'])->name('add.cart');
+    Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
     Route::get('/qty-plus/{key}', [CartController::class,'qtyPlus'])->name('qty.plus');
     Route::get('/qty-minus/{key}', [CartController::class,'qtyMinus'])->name('qty.minus');
     Route::get('/cart-remove/{key}', [CartController::class,'remove'])->name('cart.remove');
     Route::post('/place-order', [PaymentController::class,'placeOrder'])->name('place.order');
+    Route::post('/order', [PaymentController::class, 'placeOrder'])->name('order');
     Route::view('/profile', 'profile')->name('profile');
 });
 

@@ -5,6 +5,7 @@ namespace App\Services;
 class CartService
 {
     /**
+<<<<<<< HEAD
      * Add item into cart arrays and return updated state.
      *
      * @param array<int, int> $cart
@@ -22,12 +23,27 @@ class CartService
         } else {
             $cart[] = $mid;
             $qty[] = $quantity;
+=======
+     * @param array<int,int> $cart
+     * @param array<int,int> $qty
+     * @return array{cart: array<int,int>, qty: array<int,int>}
+     */
+    public function addItem(array $cart, array $qty, int $mid, int $addQty = 1): array
+    {
+        if (in_array($mid, $cart, true)) {
+            $key = array_search($mid, $cart, true);
+            $qty[$key] = ((int) ($qty[$key] ?? 1)) + $addQty;
+        } else {
+            $cart[] = $mid;
+            $qty[] = $addQty;
+>>>>>>> 9eb146a (update files)
         }
 
         return ['cart' => $cart, 'qty' => $qty];
     }
 
     /**
+<<<<<<< HEAD
      * Increase item quantity by key.
      *
      * @param array<int, int> $qty
@@ -50,17 +66,32 @@ class CartService
     {
         if (isset($qty[$key]) && $qty[$key] > 1) {
             $qty[$key]--;
+=======
+     * @param array<int,int> $qty
+     * @return array<int,int>
+     */
+    public function decreaseQty(array $qty, int $key): array
+    {
+        if (isset($qty[$key]) && (int) $qty[$key] > 1) {
+            $qty[$key] = (int) $qty[$key] - 1;
+>>>>>>> 9eb146a (update files)
         }
 
         return $qty;
     }
 
     /**
+<<<<<<< HEAD
      * Remove an item by key from cart and qty arrays.
      *
      * @param array<int, int> $cart
      * @param array<int, int> $qty
      * @return array{cart: array<int, int>, qty: array<int, int>}
+=======
+     * @param array<int,int> $cart
+     * @param array<int,int> $qty
+     * @return array{cart: array<int,int>, qty: array<int,int>}
+>>>>>>> 9eb146a (update files)
      */
     public function removeItem(array $cart, array $qty, int $key): array
     {
@@ -69,3 +100,7 @@ class CartService
         return ['cart' => $cart, 'qty' => $qty];
     }
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9eb146a (update files)
