@@ -1,44 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\Request;
-use App\Models\Menu;
-use App\Models\Order;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\MenuController;
+use App\Http\Controllers\Api\OrderController;
 
 /*
 |--------------------------------------------------------------------------
-|  API Routes
+| REST API Routes (prefix /api)
 |--------------------------------------------------------------------------
 */
 
-/* Get all menu items */
-Route::get('/menu', function () {
-    return response()->json(Menu::all());
-});
+Route::get('/menu', [MenuController::class, 'index']);
+Route::get('/menu/{mid}', [MenuController::class, 'show'])->whereNumber('mid');
 
-/* Get single menu item */
-Route::get('/menu/{mid}', function ($mid) {
-    return response()->json(Menu::find($mid));
-});
+Route::post('/register', [AuthController::class, 'register']);
+Route::post('/login', [AuthController::class, 'login']);
 
-/* Place order  */
-Route::post('/order', function (Request $request) {
-
-    $request->validate([
-        'mid' => 'required',
-        'quantity' => 'required',
-        'userid' => 'required'
-    ]);
-
-    $order = Order::create([
-        'mid' => $request->mid,
-        'quantity' => $request->quantity,
-        'id' => $request->userid,
-        'ordertime' => now(),
-    ]);
-
-    return response()->json([
-        'success' => true,
-        'order' => $order
-    ]);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/cart', [CartController::class, 'show']);
+    Route::post('/cart', [CartController::class, 'store']);
+    Route::post('/order', [OrderController::class, 'store']);
 });
